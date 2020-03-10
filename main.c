@@ -8,6 +8,108 @@
 #define FALSE 0
 #define FIC_NAME "dico.txt"
 
+typedef struct mot_pendu mot_pendu;
+struct mot_pendu
+{
+      char mot[100];
+      char mot_secret[100];
+};
+
+void dessiner_pendu(int nb_essai)
+{
+      switch (nb_essai)
+      {
+      case 0:
+            printf("   _______     \n");
+            printf("   |/    |     \n");
+            printf("   |     O     \n");
+            printf("   |    /|\\   \n");
+            printf("   |     /\\   \n");
+            printf("___|___        \n");
+            break;
+      case 1:
+            printf("   _______     \n");
+            printf("   |/    |     \n");
+            printf("   |     O     \n");
+            printf("   |    /|\\   \n");
+            printf("   |     /     \n");
+            printf("___|___        \n");
+            break;
+      case 2:
+            printf("   _______     \n");
+            printf("   |/    |     \n");
+            printf("   |     O     \n");
+            printf("   |    /|\\   \n");
+            printf("   |           \n");
+            printf("___|___        \n");
+            break;
+      case 3:
+            printf("   _______     \n");
+            printf("   |/    |     \n");
+            printf("   |     O     \n");
+            printf("   |    /|     \n");
+            printf("   |           \n");
+            printf("___|___        \n");
+            break;
+      case 4:
+            printf("   _______     \n");
+            printf("   |/    |     \n");
+            printf("   |     O     \n");
+            printf("   |     |     \n");
+            printf("   |           \n");
+            printf("___|___        \n");
+            break;
+      case 5:
+            printf("   _______     \n");
+            printf("   |/    |     \n");
+            printf("   |     O     \n");
+            printf("   |           \n");
+            printf("   |           \n");
+            printf("___|___        \n");
+            break;
+      case 6:
+            printf("   _______     \n");
+            printf("   |/    |     \n");
+            printf("   |           \n");
+            printf("   |           \n");
+            printf("   |           \n");
+            printf("___|___        \n");
+            break;
+      case 7:
+            printf("   _______     \n");
+            printf("   |/          \n");
+            printf("   |           \n");
+            printf("   |           \n");
+            printf("   |           \n");
+            printf("___|___        \n");
+            break;
+      case 8:
+            printf("               \n");
+            printf("   |           \n");
+            printf("   |           \n");
+            printf("   |           \n");
+            printf("   |           \n");
+            printf("___|___        \n");
+            break;
+      case 9:
+            printf("               \n");
+            printf("               \n");
+            printf("               \n");
+            printf("               \n");
+            printf("               \n");
+            printf("_______        \n");
+            break;
+      case 10:
+            printf("               \n");
+            printf("               \n");
+            printf("               \n");
+            printf("               \n");
+            printf("               \n");
+            printf("               \n");
+            break;
+      }
+}
+
 char lire_caractere()
 {
       char caractere = 0;
@@ -21,16 +123,16 @@ char lire_caractere()
       return caractere;
 }
 
-int nouvelle_lettre(char nouvelle_lettre, char *mot_secret, char *mot)
+int nouvelle_lettre(char nouvelle_lettre, mot_pendu *pendu)
 {
-      int size = strlen(mot);
+      int size = strlen(pendu->mot);
       int i;
       int result = FALSE;
       for (i = 0; i < size; i++)
       {
-            if (mot[i] == nouvelle_lettre)
+            if (pendu->mot[i] == nouvelle_lettre)
             {
-                  mot_secret[i] = nouvelle_lettre;
+                  pendu->mot_secret[i] = nouvelle_lettre;
                   result = TRUE;
             }
       }
@@ -50,30 +152,36 @@ int contains_char(char c, char *s)
       return FALSE;
 }
 
-void victoire_ou_defaite(int nb_essai, char *mot_secret, char *mot)
+void victoire_ou_defaite(int nb_essai, mot_pendu *pendu)
 {
       if (nb_essai == 0)
       {
+            system("clear");
             printf("==========================\n");
             printf("======= T'ES MORT ========\n");
             printf("==========================\n");
-            printf("%s\n", mot);
+            printf("%s\n", pendu->mot);
             printf("\a");
+            dessiner_pendu(nb_essai);
       }
-      else if (!contains_char(JOKER, mot_secret))
+      else if (!contains_char(JOKER, pendu->mot_secret))
       {
+            system("clear");
             printf("==========================\n");
             printf("=======C'EST GAGNE========\n");
             printf("==========================\n");
-            printf("%s\n", mot);
+            printf("%s\n", pendu->mot);
             printf("\a");
+            dessiner_pendu(nb_essai);
       }
+      
 }
 
 int compter_lignes(FILE *dico)
 {
       int count = 0;
       char s[100];
+      rewind(dico);
       while (fgets(s, 100, dico) != NULL)
       {
             count++;
@@ -85,17 +193,14 @@ int compter_lignes(FILE *dico)
 char *lire_ligne(int n, FILE *dico)
 {
       char ligne[100];
-      
-      rewind(dico); 
+
+      rewind(dico);
       while (n > 0)
       {
             fgets(ligne, 100, dico);
-            n--;  
+            n--;
       }
-      if (fgets(ligne, 100, dico) == NULL)
-      {
-            printf("Failed to read line %d\n", n);
-      }
+      fgets(ligne, 100, dico);
 
       ligne[strlen(ligne) - 1] = '\0';
       return ligne;
@@ -125,35 +230,46 @@ char *piocher_mot()
       return mot;
 }
 
+void print_header(int nb_essai)
+{
+      printf("==========================\n");
+      printf("=======   PENDU   ========\n");
+      printf("==========================\n");
+      printf("Il vous reste %d essais avant une mort certaine\n", nb_essai);
+      printf("Saisissez un lettre\n");
+}
+
 int main(int argc, const char *argv[])
 {
-      char mot[100];
-      strcpy(mot, piocher_mot());
-      char mot_secret[100];
-      int i;
-      for (i = 0; i < strlen(mot); i++)
+      char c;
+      do
       {
-            mot_secret[i] = '*';
-      }
-      mot_secret[strlen(mot)] = '\0';
-
-      int nb_essai = 10;
-
-      while (strcmp(mot, mot_secret) && nb_essai > 0)
-      {
-            system("clear");
-            printf("==========================\n");
-            printf("=======   PENDU   ========\n");
-            printf("==========================\n");
-            printf("Il vous reste %d essais avant une mort certaine\n", nb_essai);
-            printf("Saisissez un lettre\n");
-
-            printf("mot secret %s\n", mot_secret);
-            char lettre = lire_caractere();
-            if (!nouvelle_lettre(lettre, mot_secret, mot))
+            mot_pendu pendu;
+            strcpy(pendu.mot, piocher_mot());
+            int i;
+            for (i = 0; i < strlen(pendu.mot); i++)
             {
-                  nb_essai--;
+                  pendu.mot_secret[i] = '*';
             }
-            victoire_ou_defaite(nb_essai, mot_secret, mot);
-      }
+            pendu.mot_secret[strlen(pendu.mot)] = '\0';
+
+            int nb_essai = 10;
+
+            while (strcmp(pendu.mot, pendu.mot_secret) && nb_essai > 0)
+            {
+                  system("clear");
+                  print_header(nb_essai);
+                  dessiner_pendu(nb_essai);
+                  printf("mot secret %s\n", pendu.mot_secret);
+                  char lettre = lire_caractere();
+                  if (!nouvelle_lettre(lettre, &pendu))
+                  {
+                        nb_essai--;
+                  }
+                  victoire_ou_defaite(nb_essai, &pendu);
+            }
+
+            printf("\nRejouer ?\n");
+            c = lire_caractere();
+      } while (c == 'Y' || c == 'O');
 }
