@@ -52,13 +52,13 @@ int contains_char(char c, char *s)
 
 void victoire_ou_defaite(int nb_essai, char *mot_secret, char *mot)
 {
-      fprintf(stdout, "\aBeep!\n" );
       if (nb_essai == 0)
       {
             printf("==========================\n");
             printf("======= T'ES MORT ========\n");
             printf("==========================\n");
             printf("%s\n", mot);
+            printf("\a");
       }
       else if (!contains_char(JOKER, mot_secret))
       {
@@ -66,6 +66,7 @@ void victoire_ou_defaite(int nb_essai, char *mot_secret, char *mot)
             printf("=======C'EST GAGNE========\n");
             printf("==========================\n");
             printf("%s\n", mot);
+            printf("\a");
       }
 }
 
